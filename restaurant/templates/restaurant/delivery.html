@@ -1,0 +1,227 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}طلب التوصيل - مطعم الحرمين{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="fade-in">التوصيل <span>إلى العنوان</span></h1>
+        <nav class="breadcrumb fade-in">
+            <a href="{% url 'restaurant:index' %}">الرئيسية</a>
+            <span>/</span>
+            <span>طلب التوصيل</span>
+        </nav>
+    </div>
+</section>
+
+<section class="section delivery-section">
+    <div class="container">
+        <!-- Restaurant Status -->
+        <div class="restaurant-status fade-in {% if is_open %}status-open{% else %}status-closed{% endif %}" id="restaurantStatus">
+            <i class="fas fa-{% if is_open %}check-circle{% else %}times-circle{% endif %}"></i>
+            <span id="statusText">{% if is_open %}مفتوح الآن{% else %}مغلق الآن{% endif %}</span>
+        </div>
+
+        <div class="closed-alert fade-in" id="closedAlert" {% if is_open %}style="display:none;"{% endif %}>
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>{{ closed_message }}</p>
+        </div>
+
+        {% if not dish %}
+        <div class="dish-select-card fade-in">
+            <h3><i class="fas fa-utensils"></i> اختر الصنف</h3>
+            <p>يرجى اختيار صنف من القائمة لإتمام طلب التوصيل</p>
+            <div class="form-group">
+                <select class="form-control" id="dishSelect">
+                    <option value="">-- اختر صنفاً --</option>
+                    {% for d in dishes %}
+                    <option value="{{ d.pk }}">{{ d.name }} - {{ d.price }} ر.س</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <a href="{% url 'restaurant:menu' %}" class="btn btn-outline btn-sm">عرض القائمة الكاملة</a>
+        </div>
+        {% else %}
+
+        <form method="post" class="delivery-form fade-in" id="deliveryForm" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="dish" value="{{ dish.pk }}">
+            <input type="hidden" id="unitPrice" value="{{ unit_price }}">
+            <input type="hidden" id="deliveryFeeValue" value="{{ delivery_fee }}">
+
+            <div class="delivery-grid">
+                <!-- Customer Info -->
+                <div class="form-card">
+                    <h3><i class="fas fa-user"></i> بيانات العميل</h3>
+
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <span class="form-error">{{ form.name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                        <span class="form-error">{{ form.phone.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                        <span class="form-error">{{ form.address.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Order Details -->
+                <div class="form-card">
+                    <h3><i class="fas fa-shopping-bag"></i> تفاصيل الطلب</h3>
+
+                    <div class="form-group">
+                        <label>اسم الصنف</label>
+                        <div class="readonly-field">
+                            <i class="fas fa-utensils"></i>
+                            <span>{{ dish.name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                        {{ form.quantity }}
+                        {% if form.quantity.errors %}
+                        <span class="form-error">{{ form.quantity.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+                        {{ form.notes }}
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <h4><i class="fas fa-receipt"></i> ملخص الطلب</h4>
+                        <div class="summary-row">
+                            <span>سعر الصنف</span>
+                            <span id="summaryUnitPrice">{{ unit_price }} ر.س</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>رسوم التوصيل</span>
+                            <span id="summaryDeliveryFee">{{ delivery_fee }} ر.س</span>
+                        </div>
+                        <div class="summary-row summary-total">
+                            <span>المبلغ الإجمالي</span>
+                            <span id="summaryTotal">{{ initial_total }} ر.س</span>
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="form-error-block">
+                        {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-block" id="confirmOrderBtn" {% if not is_open %}disabled{% endif %}>
+                        <i class="fas fa-check-circle"></i> تأكيد الطلب
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        initDishSelect();
+        initDeliveryOrder();
+    });
+
+    function initDishSelect() {
+        const select = document.getElementById('dishSelect');
+        if (!select) return;
+        select.addEventListener('change', function () {
+            if (this.value) {
+                window.location.href = '{% url "restaurant:delivery" %}?dish=' + this.value;
+            }
+        });
+    }
+
+    function isRestaurantOpen() {
+        const now = new Date();
+        const totalMinutes = now.getHours() * 60 + now.getMinutes();
+        return totalMinutes >= 360 && totalMinutes < 900;
+    }
+
+    function initDeliveryOrder() {
+        const form = document.getElementById('deliveryForm');
+        if (!form) return;
+
+        const quantityInput = document.getElementById('id_quantity');
+        const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
+        const deliveryFee = parseFloat(document.getElementById('deliveryFeeValue').value) || 0;
+        const statusEl = document.getElementById('restaurantStatus');
+        const statusText = document.getElementById('statusText');
+        const closedAlert = document.getElementById('closedAlert');
+        const confirmBtn = document.getElementById('confirmOrderBtn');
+        const summaryUnitPrice = document.getElementById('summaryUnitPrice');
+        const summaryTotal = document.getElementById('summaryTotal');
+
+        function updateTotal() {
+            const qty = parseInt(quantityInput.value, 10) || 1;
+            const subtotal = unitPrice * qty;
+            const total = subtotal + deliveryFee;
+            summaryUnitPrice.textContent = subtotal.toFixed(2) + ' ر.س';
+            summaryTotal.textContent = total.toFixed(2) + ' ر.س';
+        }
+
+        function updateOpenStatus() {
+            const open = isRestaurantOpen();
+            if (statusEl) {
+                statusEl.classList.toggle('status-open', open);
+                statusEl.classList.toggle('status-closed', !open);
+                const icon = statusEl.querySelector('i');
+                if (icon) {
+                    icon.className = open ? 'fas fa-check-circle' : 'fas fa-times-circle';
+                }
+            }
+            if (statusText) {
+                statusText.textContent = open ? 'مفتوح الآن' : 'مغلق الآن';
+            }
+            if (closedAlert) {
+                closedAlert.style.display = open ? 'none' : 'block';
+            }
+            if (confirmBtn) {
+                confirmBtn.disabled = !open;
+            }
+        }
+
+        if (quantityInput) {
+            quantityInput.addEventListener('input', updateTotal);
+            quantityInput.addEventListener('change', updateTotal);
+            updateTotal();
+        }
+
+        updateOpenStatus();
+        setInterval(updateOpenStatus, 60000);
+
+        form.addEventListener('submit', function (e) {
+            if (!isRestaurantOpen()) {
+                e.preventDefault();
+                updateOpenStatus();
+            }
+        });
+    }
+</script>
+{% endblock %}

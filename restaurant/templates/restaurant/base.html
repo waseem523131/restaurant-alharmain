@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="مطعم الحرمين - تجربة طعام فاخرة وأصيلة">
+    <title>{% block title %}مطعم الحرمين{% endblock %}</title>
+
+    <!-- Google Fonts - Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'restaurant/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="{% url 'restaurant:index' %}" class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>مطعم <strong>الحرمين</strong></span>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{% url 'restaurant:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">الرئيسية</a></li>
+                <li><a href="{% url 'restaurant:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">عن المطعم</a></li>
+                <li><a href="{% url 'restaurant:menu' %}" class="nav-link {% if request.resolver_match.url_name == 'menu' %}active{% endif %}">القائمة</a></li>
+                <li><a href="{% url 'restaurant:ratings' %}" class="nav-link {% if request.resolver_match.url_name == 'ratings' %}active{% endif %}">التقييمات</a></li>
+                <li><a href="{% url 'restaurant:delivery' %}" class="nav-link {% if request.resolver_match.url_name == 'delivery' %}active{% endif %}">التوصيل إلى العنوان</a></li>
+                <li><a href="{% url 'restaurant:contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">التواصل</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        <div class="container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} fade-in">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3 class="footer-logo">
+                        <i class="fas fa-utensils"></i>
+                        مطعم الحرمين
+                    </h3>
+                    <p>نقدم لكم أشهى المأكولات العربية والعالمية بأيدي طهاة محترفين في أجواء فاخرة وأنيقة.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="تويتر"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" aria-label="إنستغرام"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="سناب شات"><i class="fab fa-snapchat"></i></a>
+                        <a href="#" aria-label="واتساب"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h4>روابط سريعة</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'restaurant:index' %}">الرئيسية</a></li>
+                        <li><a href="{% url 'restaurant:about' %}">عن المطعم</a></li>
+                        <li><a href="{% url 'restaurant:menu' %}">القائمة</a></li>
+                        <li><a href="{% url 'restaurant:ratings' %}">التقييمات</a></li>
+                        <li><a href="{% url 'restaurant:delivery' %}">التوصيل إلى العنوان</a></li>
+                        <li><a href="{% url 'restaurant:contact' %}">التواصل</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>ساعات العمل</h4>
+                    <ul class="footer-info">
+                        <li><i class="fas fa-clock"></i> {{ SITE_HOURS }}</li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h4>تواصل معنا</h4>
+                    <ul class="footer-info">
+                        <li><i class="fas fa-map-marker-alt"></i> {{ SITE_LOCATION }}</li>
+                        <li><i class="fas fa-phone"></i> <a href="tel:{{ SITE_PHONE_TEL }}">{{ SITE_PHONE }}</a></li>
+                        <li><i class="fas fa-envelope"></i> <a href="mailto:{{ SITE_EMAIL }}">{{ SITE_EMAIL }}</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; {% now "Y" %} مطعم الحرمين. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="{% static 'restaurant/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

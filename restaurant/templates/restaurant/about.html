@@ -1,0 +1,170 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}عن المطعم - مطعم الحرمين{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1 class="fade-in">عن <span>المطعم</span></h1>
+        <nav class="breadcrumb fade-in">
+            <a href="{% url 'restaurant:index' %}">الرئيسية</a>
+            <span>/</span>
+            <span>عن المطعم</span>
+        </nav>
+    </div>
+</section>
+
+<!-- Story Section -->
+<section class="section">
+    <div class="container">
+        <div class="about-grid reverse">
+            <div class="about-text fade-in">
+                <span class="section-tag">قصتنا</span>
+                <h2 class="section-title">رحلة <span>الشغف</span> بالطعام</h2>
+                <p>بدأت قصة مطعم الحرمين في عام 2010 برؤية بسيطة: تقديم أفضل تجربة طعام عربي أصيل في بيئة عصرية وفاخرة. من مطبخ صغير إلى واحد من أشهر المطاعم في المنطقة.</p>
+                <p>نؤمن بأن الطعام لغة عالمية تجمع الناس، ولذلك نحرص على استخدام أجود المكونات الطازجة المحلية مع وصفات عائلية موروثة عبر الأجيال.</p>
+            </div>
+            <div class="about-image fade-in">
+                <img src="{% static 'restaurant/images/about-story.jpg' %}" alt="قصة المطعم" onerror="this.src='https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&h=500&fit=crop'">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Vision & Mission -->
+<section class="section vision-mission">
+    <div class="container">
+        <div class="vm-grid">
+            <div class="vm-card fade-in">
+                <div class="vm-icon"><i class="fas fa-eye"></i></div>
+                <h3>رؤيتنا</h3>
+                <p>أن نكون الوجهة الأولى لتجربة الطعام الفاخر في المملكة، ونموذجاً يُحتذى به في الجودة والضيافة والابتكار.</p>
+            </div>
+            <div class="vm-card fade-in">
+                <div class="vm-icon"><i class="fas fa-bullseye"></i></div>
+                <h3>رسالتنا</h3>
+                <p>تقديم أشهى المأكولات بأعلى معايير الجودة، مع خلق تجربة ضيافة استثنائية تجعل كل زائر يشعر وكأنه في بيته.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="section team-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-tag">فريقنا</span>
+            <h2 class="section-title">طهاة <span>محترفون</span></h2>
+            <p class="section-desc">فريق من الخبراء المتخصصين يعملون بشغف لإعداد أشهى الأطباق</p>
+        </div>
+
+        <div class="team-grid">
+            <div class="team-card fade-in">
+                <div class="team-image">
+                    <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=300&h=300&fit=crop" alt="الشيف أحمد">
+                </div>
+                <h3>الشيف أحمد المنصور</h3>
+                <span class="team-role">الشيف التنفيذي</span>
+                <p>خبرة 20 عاماً في المطبخ العربي والعالمي</p>
+            </div>
+            <div class="team-card fade-in">
+                <div class="team-image">
+                    <img src="https://images.unsplash.com/photo-1583394293214-28ded15eeaf1?w=300&h=300&fit=crop" alt="الشيف فاطمة">
+                </div>
+                <h3>الشيف فاطمة الزهراني</h3>
+                <span class="team-role">شيف الحلويات</span>
+                <p>متخصصة في الحلويات العربية التقليدية</p>
+            </div>
+            <div class="team-card fade-in">
+                <div class="team-image">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop" alt="محمد العمري">
+                </div>
+                <h3>محمد العمري</h3>
+                <span class="team-role">مدير المطعم</span>
+                <p>خبرة في إدارة المطاعم الفاخرة</p>
+            </div>
+            <div class="team-card fade-in">
+                <div class="team-image">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop" alt="سارة الحربي">
+                </div>
+                <h3>سارة الحربي</h3>
+                <span class="team-role">مديرة الضيافة</span>
+                <p>متخصصة في تجربة العملاء المتميزة</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section class="section stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item fade-in">
+                <i class="fas fa-award"></i>
+                <span class="stat-number" data-target="15">0</span>
+                <span class="stat-label">سنوات الخبرة</span>
+            </div>
+            <div class="stat-item fade-in">
+                <i class="fas fa-user-tie"></i>
+                <span class="stat-number" data-target="45">0</span>
+                <span class="stat-label">موظف محترف</span>
+            </div>
+            <div class="stat-item fade-in">
+                <i class="fas fa-utensils"></i>
+                <span class="stat-number" data-target="120">0</span>
+                <span class="stat-label">طبق في القائمة</span>
+            </div>
+            <div class="stat-item fade-in">
+                <i class="fas fa-star"></i>
+                <span class="stat-number" data-target="4.9">0</span>
+                <span class="stat-label">تقييم العملاء</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="section why-us-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-tag">مميزاتنا</span>
+            <h2 class="section-title">لماذا <span>تختارنا</span>؟</h2>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-leaf"></i></div>
+                <h3>مكونات طازجة</h3>
+                <p>نختار أجود المكونات الطازجة يومياً من موردين موثوقين</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-fire"></i></div>
+                <h3>طهاة محترفون</h3>
+                <p>فريق من الطهاة ذوي الخبرة العالية في المطبخ العربي والعالمي</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-gem"></i></div>
+                <h3>أجواء فاخرة</h3>
+                <p>تصميم داخلي أنيق يجمع بين الأصالة والحداثة</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-handshake"></i></div>
+                <h3>خدمة متميزة</h3>
+                <p>فريق ضيافة مدرب لتقديم أفضل تجربة لضيوفنا</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>معايير صحية</h3>
+                <p>نلتزم بأعلى معايير النظافة والسلامة الغذائية</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-heart"></i></div>
+                <h3>ضيافة حقيقية</h3>
+                <p>نرحب بضيوفنا كأفراد من عائلتنا الكبيرة</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

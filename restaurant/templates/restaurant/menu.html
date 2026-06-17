@@ -1,0 +1,103 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}القائمة - مطعم الحرمين{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <h1 class="fade-in">قائمة <span>الطعام</span></h1>
+        <nav class="breadcrumb fade-in">
+            <a href="{% url 'restaurant:index' %}">الرئيسية</a>
+            <span>/</span>
+            <span>القائمة</span>
+        </nav>
+    </div>
+</section>
+
+<!-- Menu Section -->
+<section class="section menu-section">
+    <div class="container">
+        <!-- Category Filter -->
+        <div class="menu-filter fade-in">
+            <button class="filter-btn active" data-category="all">
+                <i class="fas fa-th"></i> الكل
+            </button>
+            {% for category in categories %}
+            <button class="filter-btn" data-category="{{ category.slug }}">
+                <i class="fas fa-utensils"></i> {{ category.name }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Dishes Grid -->
+        <div class="menu-grid" id="menuGrid">
+            {% for dish in dishes %}
+            <div class="menu-card fade-in" data-category="{{ dish.category.slug }}">
+                <div class="menu-card-image">
+                    {% if dish.image %}
+                    <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="{{ dish.name }}">
+                    {% endif %}
+                    <span class="menu-category-badge">{{ dish.category.name }}</span>
+                </div>
+                <div class="menu-card-content">
+                    <h3>{{ dish.name }}</h3>
+                    <p>{{ dish.description|truncatewords:20 }}</p>
+                    {% if dish.ingredients %}
+                    <p class="menu-ingredients"><i class="fas fa-list"></i> {{ dish.ingredients|truncatewords:10 }}</p>
+                    {% endif %}
+                    <div class="menu-card-footer">
+                        <span class="menu-price">{{ dish.price }} <small>ر.س</small></span>
+                        <a href="{% url 'restaurant:delivery' %}?dish={{ dish.pk }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-shopping-cart"></i> اطلب الآن
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state full-width">
+                <i class="fas fa-utensils"></i>
+                <h3>لا توجد أطباق حالياً</h3>
+                <p>يرجى إضافة أطباق من لوحة التحكم</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav class="pagination fade-in" aria-label="ترقيم الصفحات">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="page-link">
+                <i class="fas fa-chevron-right"></i> السابق
+            </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="page-link active">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="page-link">
+                التالي <i class="fas fa-chevron-left"></i>
+            </a>
+            {% endif %}
+        </nav>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initMenuFilter();
+    });
+</script>
+{% endblock %}

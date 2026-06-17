@@ -1,0 +1,99 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}مطعم الحرمين - الصفحة الرئيسية{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="background-image: url('{% static 'restaurant/images/hero-bg.jpg' %}');">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content fade-in">
+        <span class="hero-badge"><i class="fas fa-star"></i> تجربة طعام فاخرة</span>
+        <h1 class="hero-title">مطعم <span>الحرمين</span></h1>
+        <p class="hero-subtitle">نقدم لكم أشهى المأكولات العربية والعالمية في أجواء أنيقة وفاخرة</p>
+        <div class="hero-buttons">
+            <a href="{% url 'restaurant:delivery' %}" class="btn btn-primary">
+                <i class="fas fa-truck"></i> التوصيل إلى العنوان
+            </a>
+            <a href="{% url 'restaurant:menu' %}" class="btn btn-outline">
+                <i class="fas fa-utensils"></i> استكشف القائمة
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Dishes -->
+<section class="section featured-dishes">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-tag">قائمتنا</span>
+            <h2 class="section-title">أطباقنا <span>المميزة</span></h2>
+            <p class="section-desc">اكتشف مجموعة مختارة من أشهى أطباقنا المحضرة بأيدي طهاة محترفين</p>
+        </div>
+
+        <div class="dishes-grid">
+            {% for dish in featured_dishes %}
+            <div class="dish-card fade-in">
+                <div class="dish-image">
+                    {% if dish.image %}
+                    <img src="{{ dish.image.url }}" alt="{{ dish.name }}">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="{{ dish.name }}">
+                    {% endif %}
+                    <span class="dish-category">{{ dish.category.name }}</span>
+                </div>
+                <div class="dish-content">
+                    <h3>{{ dish.name }}</h3>
+                    <p>{{ dish.description|truncatewords:15 }}</p>
+                    <div class="dish-footer">
+                        <span class="dish-price">{{ dish.price }} <small>ر.س</small></span>
+                        <a href="{% url 'restaurant:delivery' %}?dish={{ dish.pk }}" class="btn btn-sm btn-primary">اطلب الآن</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-utensils"></i>
+                <p>لا توجد أطباق مميزة حالياً. أضف أطباقاً من لوحة التحكم.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'restaurant:menu' %}" class="btn btn-outline">عرض القائمة الكاملة</a>
+        </div>
+    </div>
+</section>
+
+<!-- Special Offers -->
+<section class="section offers-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-tag">عروض حصرية</span>
+            <h2 class="section-title">العروض <span>الخاصة</span></h2>
+        </div>
+
+        <div class="offers-grid">
+            <div class="offer-card fade-in">
+                <div class="offer-icon"><i class="fas fa-users"></i></div>
+                <h3>عرض العائلة</h3>
+                <p>وجبة عائلية كاملة لـ 6 أشخاص بخصم 25%</p>
+                <span class="offer-price">299 ر.س <del>399 ر.س</del></span>
+            </div>
+            <div class="offer-card featured fade-in">   
+                <div class="offer-badge">الأكثر طلباً</div>
+                <div class="offer-icon"><i class="fas fa-crown"></i></div>
+                <h3>باقة الحرمين الملكية</h3>
+                <p>تجربة طعام فاخرة مع مشروبات ومقبلات مجانية</p>
+                <span class="offer-price">499 ر.س <del>650 ر.س</del></span>
+            </div>
+            <div class="offer-card fade-in">
+                <div class="offer-icon"><i class="fas fa-moon"></i></div>
+                <h3>عرض رمضان</h3>
+                <p>إفطار جماعي مع حلويات تقليدية ومشروبات</p>
+                <span class="offer-price">199 ر.س <del>280 ر.س</del></span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

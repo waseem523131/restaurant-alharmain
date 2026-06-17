@@ -1,0 +1,168 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}التواصل - مطعم الحرمين{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="fade-in">تواصل <span>معنا</span></h1>
+        <nav class="breadcrumb fade-in">
+            <a href="{% url 'restaurant:index' %}">الرئيسية</a>
+            <span>/</span>
+            <span>التواصل</span>
+        </nav>
+    </div>
+</section>
+
+<section class="section contact-section">
+    <div class="container">
+        <div class="contact-summary fade-in">
+            <div class="contact-summary-item">
+                <i class="fas fa-phone"></i>
+                <div>
+                    <h4>الهاتف</h4>
+                    <a href="tel:{{ SITE_PHONE_TEL }}">{{ SITE_PHONE }}</a>
+                </div>
+            </div>
+            <div class="contact-summary-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                    <h4>الموقع</h4>
+                    <p>{{ SITE_LOCATION }}</p>
+                </div>
+            </div>
+            <div class="contact-summary-item">
+                <i class="fas fa-clock"></i>
+                <div>
+                    <h4>ساعات العمل</h4>
+                    <p>{{ SITE_HOURS }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-grid">
+            <div class="contact-info fade-in">
+                <h2>معلومات <span>التواصل</span></h2>
+                <p>نسعد بتواصلكم معنا. لطلب التوصيل، يمكنكم زيارة <a href="{% url 'restaurant:delivery' %}">صفحة التوصيل</a> أو إرسال استفسار عبر النموذج أدناه.</p>
+
+                <div class="info-items">
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h4>العنوان</h4>
+                            <p>{{ SITE_LOCATION }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <h4>الهاتف</h4>
+                            <p><a href="tel:{{ SITE_PHONE_TEL }}">{{ SITE_PHONE }}</a></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <h4>البريد الإلكتروني</h4>
+                            <p><a href="mailto:{{ SITE_EMAIL }}">{{ SITE_EMAIL }}</a></p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <h4>ساعات العمل</h4>
+                            <p>{{ SITE_HOURS }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-social">
+                    <h4>تابعنا على</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="تويتر"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" aria-label="إنستغرام"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="سناب شات"><i class="fab fa-snapchat"></i></a>
+                        <a href="https://wa.me/{{ SITE_WHATSAPP }}" aria-label="واتساب"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" aria-label="تيك توك"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-forms fade-in">
+                <div class="form-card">
+                    <h3><i class="fas fa-envelope"></i> أرسل رسالة</h3>
+                    <form method="post" class="contact-form" novalidate>
+                        {% csrf_token %}
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ contact_form.name.id_for_label }}">{{ contact_form.name.label }}</label>
+                                {{ contact_form.name }}
+                                {% if contact_form.name.errors %}
+                                <span class="form-error">{{ contact_form.name.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ contact_form.email.id_for_label }}">{{ contact_form.email.label }}</label>
+                                {{ contact_form.email }}
+                                {% if contact_form.email.errors %}
+                                <span class="form-error">{{ contact_form.email.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ contact_form.subject.id_for_label }}">{{ contact_form.subject.label }}</label>
+                            {{ contact_form.subject }}
+                            {% if contact_form.subject.errors %}
+                            <span class="form-error">{{ contact_form.subject.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ contact_form.message.id_for_label }}">{{ contact_form.message.label }}</label>
+                            {{ contact_form.message }}
+                            {% if contact_form.message.errors %}
+                            <span class="form-error">{{ contact_form.message.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-paper-plane"></i> إرسال الرسالة
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Section -->
+        <div class="location-section fade-in">
+            <div class="location-card">
+                <h2><i class="fas fa-map-marker-alt"></i> الموقع</h2>
+                <p class="location-address">
+                    <span class="location-pin">📍</span>
+                    <strong>موقع المطعم:</strong><br>
+                    {{ SITE_FULL_ADDRESS }}
+                </p>
+                <a href="{{ SITE_MAP_URL }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                    <i class="fas fa-map-marked-alt"></i> عرض الموقع على الخريطة
+                </a>
+            </div>
+
+            <div class="map-container">
+                <iframe
+                    src="{{ SITE_MAP_EMBED }}"
+                    width="100%"
+                    height="450"
+                    style="border:0;"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="موقع مطعم ومطبخ الحرمين - صنعاء">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

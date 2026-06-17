@@ -1,0 +1,204 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}التقييمات - مطعم الحرمين{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="fade-in">التقييمات</h1>
+        <nav class="breadcrumb fade-in">
+            <a href="{% url 'restaurant:index' %}">الرئيسية</a>
+            <span>/</span>
+            <span>التقييمات</span>
+        </nav>
+    </div>
+</section>
+
+<section class="section ratings-section">
+    <div class="container">
+        <!-- Average Rating -->
+        <div class="average-rating-card fade-in">
+            <div class="average-rating-score">
+                <span class="score-number">{{ average_rating }}</span>
+                <div class="score-stars">
+                    {% for i in "12345" %}
+                    <i class="fas fa-star{% if forloop.counter > average_stars %}-o{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                <p class="score-label">متوسط التقييم العام</p>
+                <span class="score-count">بناءً على {{ reviews_count }} تقييم</span>
+            </div>
+        </div>
+
+        <div class="ratings-layout">
+            <!-- Review Form -->
+            <div class="form-card review-form-card fade-in" id="add-review">
+                <h3><i class="fas fa-pen"></i> أضف تقييمك</h3>
+                <form method="post" class="review-form" id="reviewForm">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="{{ review_form.customer_name.id_for_label }}">{{ review_form.customer_name.label }} <span class="required">*</span></label>
+                        {{ review_form.customer_name }}
+                        {% if review_form.customer_name.errors %}
+                        <span class="form-error">{{ review_form.customer_name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="starRating">التقييم <span class="required">*</span></label>
+                        <div class="star-rating-wrapper" id="starRating">
+                            <div class="star-rating" role="radiogroup" aria-label="اختر تقييمك من 1 إلى 5 نجوم">
+                                {% for i in "12345" %}
+                                <label class="star-pick" data-value="{{ forloop.counter }}" title="{{ forloop.counter }} نجوم">
+                                    <input
+                                        type="radio"
+                                        name="rating"
+                                        value="{{ forloop.counter }}"
+                                        class="star-radio-input"
+                                        {% if selected_rating == forloop.counter|stringformat:"s" %}checked{% endif %}
+                                        {% if forloop.first %}required{% endif %}
+                                    >
+                                    <span class="star-icon" aria-hidden="true">
+                                        <i class="far fa-star"></i>
+                                    </span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <p class="star-rating-text is-empty" id="starRatingText">اختر تقييمك بالضغط على النجوم</p>
+                        </div>
+                        {% if review_form.rating.errors %}
+                        <span class="form-error">{{ review_form.rating.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ review_form.content.id_for_label }}">{{ review_form.content.label }} <span class="required">*</span></label>
+                        {{ review_form.content }}
+                        {% if review_form.content.errors %}
+                        <span class="form-error">{{ review_form.content.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> إرسال التقييم
+                    </button>
+                </form>
+            </div>
+
+            <!-- All Reviews -->
+            <div class="reviews-list fade-in">
+                <h3><i class="fas fa-comments"></i> تقييمات العملاء</h3>
+
+                {% if reviews %}
+                <div class="testimonials-grid reviews-grid">
+                    {% for review in reviews %}
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">
+                            {% for i in "12345" %}
+                            <i class="fas fa-star{% if forloop.counter > review.rating %}-o{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="testimonial-content">"{{ review.content }}"</p>
+                        <div class="testimonial-author">
+                            {% if review.customer_image %}
+                            <img src="{{ review.customer_image.url }}" alt="{{ review.customer_name }}">
+                            {% else %}
+                            <div class="author-avatar"><i class="fas fa-user"></i></div>
+                            {% endif %}
+                            <div>
+                                <h4>{{ review.customer_name }}</h4>
+                                <span>{{ review.position }} · {{ review.created_at|date:"d M Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-star"></i>
+                    <p>لا توجد تقييمات بعد. كن أول من يقيّم مطعمنا!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const picks = document.querySelectorAll('.star-pick');
+        const ratingText = document.getElementById('starRatingText');
+        const form = document.getElementById('reviewForm');
+        if (!picks.length || !ratingText) return;
+
+        const ratingLabels = {
+            1: { stars: '1 نجمة', label: 'ضعيف' },
+            2: { stars: '2 نجمتان', label: 'مقبول' },
+            3: { stars: '3 نجوم', label: 'جيد' },
+            4: { stars: '4 نجوم', label: 'جيد جداً' },
+            5: { stars: '5 نجوم', label: 'ممتاز' },
+        };
+
+        function updateStars(value) {
+            picks.forEach(function (pick) {
+                const starValue = parseInt(pick.dataset.value, 10);
+                const icon = pick.querySelector('i');
+                const isActive = value > 0 && starValue <= value;
+                pick.classList.toggle('active', isActive);
+                icon.className = isActive ? 'fas fa-star' : 'far fa-star';
+            });
+
+            if (value > 0 && ratingLabels[value]) {
+                ratingText.textContent = ratingLabels[value].stars + ' = ' + ratingLabels[value].label;
+                ratingText.classList.remove('is-empty');
+            } else {
+                ratingText.textContent = 'اختر تقييمك بالضغط على النجوم';
+                ratingText.classList.add('is-empty');
+            }
+        }
+
+        picks.forEach(function (pick) {
+            const input = pick.querySelector('input');
+
+            pick.addEventListener('mouseenter', function () {
+                updateStars(parseInt(pick.dataset.value, 10));
+            });
+
+            pick.addEventListener('mouseleave', function () {
+                const checked = document.querySelector('.star-pick input:checked');
+                updateStars(checked ? parseInt(checked.value, 10) : 0);
+            });
+
+            pick.addEventListener('click', function () {
+                input.checked = true;
+                updateStars(parseInt(input.value, 10));
+            });
+
+            input.addEventListener('change', function () {
+                updateStars(parseInt(input.value, 10));
+            });
+        });
+
+        const checked = document.querySelector('.star-pick input:checked');
+        if (checked) {
+            updateStars(parseInt(checked.value, 10));
+        }
+
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                const selected = document.querySelector('.star-pick input:checked');
+                if (!selected) {
+                    e.preventDefault();
+                    ratingText.textContent = 'يرجى اختيار التقييم قبل الإرسال';
+                    ratingText.classList.add('is-error');
+                    document.getElementById('starRating').classList.add('has-error');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
