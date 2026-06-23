@@ -35,6 +35,8 @@ class Dish(models.Model):
     is_available = models.BooleanField('متاح', default=True)
     is_featured = models.BooleanField('مميز', default=False)
     ingredients = models.TextField('المكونات', blank=True)
+    is_deleted = models.BooleanField('محذوف', default=False)
+    deleted_at = models.DateTimeField('تاريخ الحذف', blank=True, null=True)
     created_at = models.DateTimeField('تاريخ الإنشاء', auto_now_add=True)
 
     class Meta:
@@ -46,7 +48,54 @@ class Dish(models.Model):
         return self.name
 
 
+class PaymentAccount(models.Model):
+    class Method(models.TextChoices):
+        KARIMI = 'karimi', 'كريمي جوال'
+        JEIB = 'jeib', 'جيب'
+        KASH = 'kash', 'كاش'
+
+    method = models.CharField(
+        'طريقة الدفع',
+        max_length=20,
+        choices=Method.choices,
+        unique=True,
+    )
+    account_number = models.CharField('رقم الحساب', max_length=50)
+    account_name = models.CharField('اسم الحساب', max_length=100, blank=True)
+    qr_code = models.ImageField('رمز QR', upload_to='payment_qr/', blank=True, null=True)
+    is_active = models.BooleanField('نشط', default=True)
+
+    class Meta:
+        verbose_name = 'حساب دفع إلكتروني'
+        verbose_name_plural = 'حسابات الدفع الإلكتروني'
+
+    def __str__(self):
+        return self.get_method_display()
+
+
 class DeliveryOrder(models.Model):
+    class PaymentMethod(models.TextChoices):
+        COD = 'cod', 'الدفع عند الاستلام'
+        KARIMI = 'karimi', 'كريمي جوال'
+        JEIB = 'jeib', 'جيب'
+        KASH = 'kash', 'كاش'
+
+    class OrderStatus(models.TextChoices):
+        PENDING_REVIEW = 'pending_review', 'قيد المراجعة'
+        CONFIRMED = 'confirmed', 'تم التأكيد'
+        DELIVERED = 'delivered', 'تم التوصيل'
+        CANCELLED = 'cancelled', 'ملغي'
+
+    class PaymentStatus(models.TextChoices):
+        UNCONFIRMED = 'unconfirmed', 'غير مؤكد'
+        PAID = 'paid', '\u0645\u062f\u0641\u0648\u0639'
+
+    ELECTRONIC_METHODS = {
+        PaymentMethod.KARIMI,
+        PaymentMethod.JEIB,
+        PaymentMethod.KASH,
+    }
+
     name = models.CharField('الاسم الكامل', max_length=100)
     phone = models.CharField('رقم الجوال', max_length=20)
     address = models.TextField('عنوان التوصيل')
@@ -64,6 +113,27 @@ class DeliveryOrder(models.Model):
     unit_price = models.DecimalField('سعر الصنف', max_digits=8, decimal_places=2)
     delivery_fee = models.DecimalField('رسوم التوصيل', max_digits=8, decimal_places=2)
     total_amount = models.DecimalField('المبلغ الإجمالي', max_digits=8, decimal_places=2)
+    payment_method = models.CharField(
+        'طريقة الدفع',
+        max_length=20,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.COD,
+    )
+    transaction_id = models.CharField('رقم العملية', max_length=100, blank=True)
+    order_status = models.CharField(
+        'حالة الطلب',
+        max_length=20,
+        choices=OrderStatus.choices,
+        default=OrderStatus.PENDING_REVIEW,
+    )
+    payment_status = models.CharField(
+        'حالة الدفع',
+        max_length=20,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.UNCONFIRMED,
+    )
+    is_deleted = models.BooleanField('محذوف', default=False)
+    deleted_at = models.DateTimeField('تاريخ الحذف', blank=True, null=True)
     created_at = models.DateTimeField('تاريخ الطلب', auto_now_add=True)
 
     class Meta:
@@ -74,8 +144,22 @@ class DeliveryOrder(models.Model):
     def __str__(self):
         return f'{self.name} - {self.item_name}'
 
+    @property
+    def is_electronic_payment(self):
+        return self.payment_method in self.ELECTRONIC_METHODS
+
+    @classmethod
+    def is_electronic_method(cls, method):
+        return method in cls.ELECTRONIC_METHODS
+
 
 class Reservation(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'قيد الانتظار'
+        CONFIRMED = 'confirmed', 'مؤكد'
+        CANCELLED = 'cancelled', 'ملغي'
+        COMPLETED = 'completed', 'مكتمل'
+
     name = models.CharField('الاسم', max_length=100)
     phone = models.CharField('رقم الجوال', max_length=20)
     email = models.EmailField('البريد الإلكتروني')
@@ -83,6 +167,12 @@ class Reservation(models.Model):
     time = models.TimeField('الوقت')
     persons = models.IntegerField('عدد الأشخاص')
     message = models.TextField('رسالة', blank=True)
+    status = models.CharField(
+        'حالة الحجز',
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
     created_at = models.DateTimeField('تاريخ الإنشاء', auto_now_add=True)
 
     class Meta:
@@ -118,6 +208,8 @@ class Testimonial(models.Model):
     content = models.TextField('المحتوى')
     rating = models.IntegerField('التقييم', choices=[(i, str(i)) for i in range(1, 6)])
     is_active = models.BooleanField('نشط', default=True)
+    is_deleted = models.BooleanField('محذوف', default=False)
+    deleted_at = models.DateTimeField('تاريخ الحذف', blank=True, null=True)
     created_at = models.DateTimeField('تاريخ الإنشاء', auto_now_add=True)
 
     class Meta:
@@ -132,11 +224,11 @@ class Testimonial(models.Model):
     def get_average_rating(cls):
         from django.db.models import Avg
 
-        result = cls.objects.filter(is_active=True).aggregate(avg=Avg('rating'))
+        result = cls.objects.filter(is_active=True, is_deleted=False).aggregate(avg=Avg('rating'))
         if result['avg'] is None:
             return 0
         return round(result['avg'], 1)
 
     @classmethod
     def get_reviews_count(cls):
-        return cls.objects.filter(is_active=True).count()
+        return cls.objects.filter(is_active=True, is_deleted=False).count()

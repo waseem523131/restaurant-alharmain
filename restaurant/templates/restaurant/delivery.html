@@ -17,17 +17,6 @@
 
 <section class="section delivery-section">
     <div class="container">
-        <!-- Restaurant Status -->
-        <div class="restaurant-status fade-in {% if is_open %}status-open{% else %}status-closed{% endif %}" id="restaurantStatus">
-            <i class="fas fa-{% if is_open %}check-circle{% else %}times-circle{% endif %}"></i>
-            <span id="statusText">{% if is_open %}مفتوح الآن{% else %}مغلق الآن{% endif %}</span>
-        </div>
-
-        <div class="closed-alert fade-in" id="closedAlert" {% if is_open %}style="display:none;"{% endif %}>
-            <i class="fas fa-exclamation-triangle"></i>
-            <p>{{ closed_message }}</p>
-        </div>
-
         {% if not dish %}
         <div class="dish-select-card fade-in">
             <h3><i class="fas fa-utensils"></i> اختر الصنف</h3>
@@ -130,8 +119,8 @@
                     </div>
                     {% endif %}
 
-                    <button type="submit" class="btn btn-primary btn-block" id="confirmOrderBtn" {% if not is_open %}disabled{% endif %}>
-                        <i class="fas fa-check-circle"></i> تأكيد الطلب
+                    <button type="submit" class="btn btn-primary btn-block" id="confirmOrderBtn">
+                        <i class="fas fa-arrow-left"></i> متابعة إلى الدفع
                     </button>
                 </div>
             </div>
@@ -158,12 +147,6 @@
         });
     }
 
-    function isRestaurantOpen() {
-        const now = new Date();
-        const totalMinutes = now.getHours() * 60 + now.getMinutes();
-        return totalMinutes >= 360 && totalMinutes < 900;
-    }
-
     function initDeliveryOrder() {
         const form = document.getElementById('deliveryForm');
         if (!form) return;
@@ -171,10 +154,6 @@
         const quantityInput = document.getElementById('id_quantity');
         const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
         const deliveryFee = parseFloat(document.getElementById('deliveryFeeValue').value) || 0;
-        const statusEl = document.getElementById('restaurantStatus');
-        const statusText = document.getElementById('statusText');
-        const closedAlert = document.getElementById('closedAlert');
-        const confirmBtn = document.getElementById('confirmOrderBtn');
         const summaryUnitPrice = document.getElementById('summaryUnitPrice');
         const summaryTotal = document.getElementById('summaryTotal');
 
@@ -186,42 +165,11 @@
             summaryTotal.textContent = total.toFixed(2) + ' ر.س';
         }
 
-        function updateOpenStatus() {
-            const open = isRestaurantOpen();
-            if (statusEl) {
-                statusEl.classList.toggle('status-open', open);
-                statusEl.classList.toggle('status-closed', !open);
-                const icon = statusEl.querySelector('i');
-                if (icon) {
-                    icon.className = open ? 'fas fa-check-circle' : 'fas fa-times-circle';
-                }
-            }
-            if (statusText) {
-                statusText.textContent = open ? 'مفتوح الآن' : 'مغلق الآن';
-            }
-            if (closedAlert) {
-                closedAlert.style.display = open ? 'none' : 'block';
-            }
-            if (confirmBtn) {
-                confirmBtn.disabled = !open;
-            }
-        }
-
         if (quantityInput) {
             quantityInput.addEventListener('input', updateTotal);
             quantityInput.addEventListener('change', updateTotal);
             updateTotal();
         }
-
-        updateOpenStatus();
-        setInterval(updateOpenStatus, 60000);
-
-        form.addEventListener('submit', function (e) {
-            if (!isRestaurantOpen()) {
-                e.preventDefault();
-                updateOpenStatus();
-            }
-        });
     }
 </script>
 {% endblock %}

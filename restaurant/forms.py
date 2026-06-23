@@ -1,7 +1,6 @@
 from django import forms
 
 from .models import ContactMessage, DeliveryOrder, Testimonial
-from .utils import CLOSED_MESSAGE, is_restaurant_open
 
 
 class DeliveryOrderForm(forms.ModelForm):
@@ -57,10 +56,36 @@ class DeliveryOrderForm(forms.ModelForm):
             raise forms.ValidationError('الحد الأقصى للكمية 99.')
         return quantity
 
+
+class CheckoutForm(forms.Form):
+    payment_method = forms.ChoiceField(
+        choices=DeliveryOrder.PaymentMethod.choices,
+        widget=forms.RadioSelect(attrs={'class': 'payment-method-radio'}),
+        label='طريقة الدفع',
+        error_messages={'required': 'يرجى اختيار طريقة الدفع.'},
+    )
+    transaction_id = forms.CharField(
+        required=False,
+        label='رقم العملية',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'أدخل رقم العملية بعد التحويل',
+            'id': 'id_transaction_id',
+        }),
+    )
+
     def clean(self):
         cleaned_data = super().clean()
-        if not is_restaurant_open():
-            raise forms.ValidationError(CLOSED_MESSAGE)
+        payment_method = cleaned_data.get('payment_method')
+        transaction_id = (cleaned_data.get('transaction_id') or '').strip()
+
+        if DeliveryOrder.is_electronic_method(payment_method) and not transaction_id:
+            self.add_error(
+                'transaction_id',
+                'يرجى إدخال رقم العملية بعد إتمام التحويل.',
+            )
+
+        cleaned_data['transaction_id'] = transaction_id
         return cleaned_data
 
 
