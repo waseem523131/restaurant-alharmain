@@ -1,0 +1,31 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}حسابات الدفع{% endblock %}
+{% block page_title %}حسابات الدفع الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'dashboard:payment_add' %}" class="btn btn-primary"><i class="fas fa-plus"></i> إضافة حساب</a>
+</div>
+<div class="row g-4">
+    {% for account in accounts %}
+    <div class="col-md-6 col-xl-4">
+        <div class="panel-card">
+            <h4>{{ account.get_method_display }}</h4>
+            <p class="mb-1"><strong>الرقم:</strong> {{ account.account_number }}</p>
+            <p class="mb-1"><strong>الاسم:</strong> {{ account.account_name|default:"—" }}</p>
+            <span class="badge {% if account.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                {% if account.is_active %}نشط{% else %}معطل{% endif %}
+            </span>
+            {% if account.qr_code %}
+            <div class="mt-3"><img src="{{ account.qr_code.url }}" alt="QR" class="qr-preview"></div>
+            {% endif %}
+            <div class="mt-3">
+                <a href="{% url 'dashboard:payment_edit' account.pk %}" class="btn btn-sm btn-outline-primary">تعديل</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12"><div class="panel-card text-center text-muted">لا توجد حسابات</div></div>
+    {% endfor %}
+</div>
+{% endblock %}

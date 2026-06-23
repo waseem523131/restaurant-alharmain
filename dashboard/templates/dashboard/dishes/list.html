@@ -1,0 +1,53 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}الأطباق{% endblock %}
+{% block page_title %}إدارة الأطباق{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap gap-2 justify-content-between mb-4">
+    <form method="get" class="d-flex flex-wrap gap-2">
+        <input type="text" name="q" value="{{ search_q }}" class="form-control" placeholder="بحث...">
+        <select name="category" class="form-select">
+            <option value="">كل التصنيفات</option>
+            {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-outline-primary">بحث</button>
+    </form>
+    <a href="{% url 'dashboard:dish_add' %}" class="btn btn-primary"><i class="fas fa-plus"></i> إضافة طبق</a>
+</div>
+
+<div class="row g-4">
+    {% for dish in dishes %}
+    <div class="col-md-6 col-xl-4">
+        <div class="panel-card dish-card">
+            {% if dish.image %}
+            <img src="{{ dish.image.url }}" alt="{{ dish.name }}" class="dish-thumb">
+            {% endif %}
+            <h4>{{ dish.name }}</h4>
+            <p class="text-muted small">{{ dish.category.name }} · {{ dish.price }} ر.س</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <button class="btn btn-sm {% if dish.is_available %}btn-success{% else %}btn-outline-secondary{% endif %} ajax-toggle"
+                        data-url="{% url 'dashboard:dish_toggle' dish.pk %}" data-field="is_available">
+                    {% if dish.is_available %}متاح{% else %}غير متاح{% endif %}
+                </button>
+                <button class="btn btn-sm {% if dish.is_featured %}btn-warning{% else %}btn-outline-secondary{% endif %} ajax-toggle"
+                        data-url="{% url 'dashboard:dish_toggle' dish.pk %}" data-field="is_featured">
+                    {% if dish.is_featured %}مميز{% else %}عادي{% endif %}
+                </button>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'dashboard:dish_edit' dish.pk %}" class="btn btn-sm btn-outline-primary flex-fill">تعديل</a>
+                <form method="post" action="{% url 'dashboard:dish_delete' dish.pk %}" onsubmit="return confirm('حذف الطبق؟');">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12"><div class="panel-card text-center text-muted">لا توجد أطباق</div></div>
+    {% endfor %}
+</div>
+{% include 'dashboard/partials/pagination.html' with page_obj=page_obj %}
+{% endblock %}

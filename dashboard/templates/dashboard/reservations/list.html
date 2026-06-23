@@ -1,0 +1,32 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}الحجوزات{% endblock %}
+{% block page_title %}إدارة الحجوزات{% endblock %}
+
+{% block content %}
+<div class="panel-card">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>الاسم</th><th>الجوال</th><th>التاريخ</th><th>الوقت</th><th>الأشخاص</th><th>الحالة</th></tr></thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.name }}</td>
+                <td>{{ reservation.phone }}</td>
+                <td>{{ reservation.date }}</td>
+                <td>{{ reservation.time }}</td>
+                <td>{{ reservation.persons }}</td>
+                <td>
+                    <select class="form-select form-select-sm ajax-reservation" data-url="{% url 'dashboard:reservation_ajax' reservation.pk %}">
+                        {% for value, label in reservation_status_choices %}
+                        <option value="{{ value }}" {% if reservation.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted">لا توجد حجوزات</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'dashboard/partials/pagination.html' with page_obj=page_obj %}
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}التقييمات{% endblock %}
+{% block page_title %}إدارة التقييمات{% endblock %}
+
+{% block content %}
+<div class="panel-card">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr><th>العميل</th><th>التقييم</th><th>التعليق</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+            <tr>
+                <td>{{ review.customer_name }}</td>
+                <td>{% for i in "12345" %}<i class="fas fa-star{% if forloop.counter > review.rating %}-o{% endif %} text-warning"></i>{% endfor %}</td>
+                <td>{{ review.content|truncatewords:12 }}</td>
+                <td>
+                    <button class="btn btn-sm ajax-toggle {% if review.is_active %}btn-success{% else %}btn-outline-secondary{% endif %}"
+                            data-url="{% url 'dashboard:review_toggle' review.pk %}">
+                        {% if review.is_active %}نشط{% else %}مخفي{% endif %}
+                    </button>
+                </td>
+                <td>{{ review.created_at|date:"d/m/Y" }}</td>
+                <td>
+                    <a href="{% url 'dashboard:review_edit' review.pk %}" class="btn btn-sm btn-outline-primary">تعديل</a>
+                    <form method="post" action="{% url 'dashboard:review_delete' review.pk %}" class="d-inline" onsubmit="return confirm('حذف التقييم؟');">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger">حذف</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted">لا توجد تقييمات</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'dashboard/partials/pagination.html' with page_obj=page_obj %}
+</div>
+{% endblock %}

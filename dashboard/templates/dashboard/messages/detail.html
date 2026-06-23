@@ -1,0 +1,16 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}{{ message_obj.subject }}{% endblock %}
+{% block page_title %}تفاصيل الرسالة{% endblock %}
+
+{% block content %}
+<div class="panel-card col-lg-8">
+    <dl class="row detail-list">
+        <dt class="col-sm-3">المرسل</dt><dd class="col-sm-9">{{ message_obj.name }}</dd>
+        <dt class="col-sm-3">البريد</dt><dd class="col-sm-9">{{ message_obj.email }}</dd>
+        <dt class="col-sm-3">الموضوع</dt><dd class="col-sm-9">{{ message_obj.subject }}</dd>
+        <dt class="col-sm-3">التاريخ</dt><dd class="col-sm-9">{{ message_obj.created_at|date:"d/m/Y H:i" }}</dd>
+        <dt class="col-sm-3">الرسالة</dt><dd class="col-sm-9">{{ message_obj.message|linebreaks }}</dd>
+    </dl>
+    <a href="{% url 'dashboard:messages' %}" class="btn btn-outline-secondary">رجوع</a>
+</div>
+{% endblock %}

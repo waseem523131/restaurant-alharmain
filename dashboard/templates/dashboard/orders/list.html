@@ -1,0 +1,70 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}الطلبات{% endblock %}
+{% block page_title %}إدارة الطلبات{% endblock %}
+
+{% block content %}
+<div class="panel-card mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-4">{{ filter_form.q.label_tag }}{{ filter_form.q }}</div>
+        <div class="col-md-3">{{ filter_form.order_status.label_tag }}{{ filter_form.order_status }}</div>
+        <div class="col-md-3">{{ filter_form.payment_status.label_tag }}{{ filter_form.payment_status }}</div>
+        <div class="col-md-2"><button class="btn btn-primary w-100">بحث</button></div>
+    </form>
+</div>
+
+<div class="panel-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>العميل</th>
+                    <th>الجوال</th>
+                    <th>الصنف</th>
+                    <th>المبلغ</th>
+                    <th>الدفع</th>
+                    <th>حالة الطلب</th>
+                    <th>حالة الدفع</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.name }}</td>
+                    <td>{{ order.phone }}</td>
+                    <td>{{ order.item_name }} × {{ order.quantity }}</td>
+                    <td>{{ order.total_amount }} ر.س</td>
+                    <td>{{ order.get_payment_method_display }}</td>
+                    <td>
+                        <select class="form-select form-select-sm ajax-status" data-url="{% url 'dashboard:order_ajax' order.pk %}" data-field="order_status">
+                            {% for value, label in order_status_choices %}
+                            <option value="{{ value }}" {% if order.order_status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm ajax-status" data-url="{% url 'dashboard:order_ajax' order.pk %}" data-field="payment_status">
+                            {% for value, label in payment_status_choices %}
+                            <option value="{{ value }}" {% if order.payment_status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <a href="{% url 'dashboard:order_detail' order.pk %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                        <form method="post" action="{% url 'dashboard:order_delete' order.pk %}" class="d-inline" onsubmit="return confirm('حذف الطلب؟');">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="text-center text-muted">لا توجد طلبات</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include 'dashboard/partials/pagination.html' with page_obj=page_obj %}
+</div>
+{% endblock %}

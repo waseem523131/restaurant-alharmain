@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}التصنيفات{% endblock %}
+{% block page_title %}إدارة التصنيفات{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'dashboard:category_add' %}" class="btn btn-primary"><i class="fas fa-plus"></i> إضافة تصنيف</a>
+</div>
+<div class="panel-card">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>الاسم</th><th>الرابط</th><th>عدد الأطباق</th><th>إجراءات</th></tr></thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>
+                <td>{{ category.name }}</td>
+                <td>{{ category.slug }}</td>
+                <td>{{ category.dishes.count }}</td>
+                <td><a href="{% url 'dashboard:category_edit' category.pk %}" class="btn btn-sm btn-outline-primary">تعديل</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted">لا توجد تصنيفات</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'dashboard/partials/pagination.html' with page_obj=page_obj %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}تفاصيل الطلب #{{ order.id }}{% endblock %}
+{% block page_title %}تفاصيل الطلب #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel-card">
+            <h3>بيانات الطلب</h3>
+            <dl class="row detail-list">
+                <dt class="col-sm-4">العميل</dt><dd class="col-sm-8">{{ order.name }}</dd>
+                <dt class="col-sm-4">الجوال</dt><dd class="col-sm-8">{{ order.phone }}</dd>
+                <dt class="col-sm-4">العنوان</dt><dd class="col-sm-8">{{ order.address }}</dd>
+                <dt class="col-sm-4">الصنف</dt><dd class="col-sm-8">{{ order.item_name }}</dd>
+                <dt class="col-sm-4">الكمية</dt><dd class="col-sm-8">{{ order.quantity }}</dd>
+                <dt class="col-sm-4">سعر الوحدة</dt><dd class="col-sm-8">{{ order.unit_price }} ر.س</dd>
+                <dt class="col-sm-4">رسوم التوصيل</dt><dd class="col-sm-8">{{ order.delivery_fee }} ر.س</dd>
+                <dt class="col-sm-4">الإجمالي</dt><dd class="col-sm-8"><strong>{{ order.total_amount }} ر.س</strong></dd>
+                <dt class="col-sm-4">طريقة الدفع</dt><dd class="col-sm-8">{{ order.get_payment_method_display }}</dd>
+                <dt class="col-sm-4">رقم العملية</dt><dd class="col-sm-8">{{ order.transaction_id|default:"—" }}</dd>
+                <dt class="col-sm-4">ملاحظات</dt><dd class="col-sm-8">{{ order.notes|default:"—" }}</dd>
+                <dt class="col-sm-4">التاريخ</dt><dd class="col-sm-8">{{ order.created_at|date:"d/m/Y H:i" }}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel-card">
+            <h3>تحديث الحالة</h3>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary w-100">حفظ التعديلات</button>
+            </form>
+        </div>
+    </div>
+</div>
+<a href="{% url 'dashboard:orders' %}" class="btn btn-outline-secondary mt-3">رجوع</a>
+{% endblock %}

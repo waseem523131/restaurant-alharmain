@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}{% if object %}تعديل طبق{% else %}إضافة طبق{% endif %}{% endblock %}
+{% block page_title %}{% if object %}تعديل: {{ object.name }}{% else %}إضافة طبق جديد{% endif %}{% endblock %}
+
+{% block content %}
+<div class="panel-card col-lg-8">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+            {% if field.field.widget.input_type == 'checkbox' %}
+            <div class="form-check">
+                {{ field }}
+                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+            {% else %}
+            {{ field.label_tag }}
+            {{ field }}
+            {% endif %}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">حفظ</button>
+        <a href="{% url 'dashboard:dishes' %}" class="btn btn-outline-secondary">إلغاء</a>
+    </form>
+</div>
+{% endblock %}

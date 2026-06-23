@@ -1,0 +1,35 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}الرسائل{% endblock %}
+{% block page_title %}رسائل التواصل{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'dashboard:messages' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-outline-primary{% endif %}">الكل</a>
+    <a href="?status=unread" class="btn btn-sm {% if request.GET.status == 'unread' %}btn-primary{% else %}btn-outline-primary{% endif %}">غير مقروءة</a>
+    <a href="?status=read" class="btn btn-sm {% if request.GET.status == 'read' %}btn-primary{% else %}btn-outline-primary{% endif %}">مقروءة</a>
+</div>
+<div class="panel-card">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>المرسل</th><th>الموضوع</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+        <tbody>
+            {% for msg in messages_list %}
+            <tr class="{% if not msg.is_read %}table-warning{% endif %}">
+                <td>{{ msg.name }}<br><small class="text-muted">{{ msg.email }}</small></td>
+                <td>{{ msg.subject }}</td>
+                <td>
+                    <button class="btn btn-sm ajax-toggle-read {% if msg.is_read %}btn-outline-secondary{% else %}btn-warning{% endif %}"
+                            data-url="{% url 'dashboard:message_toggle' msg.pk %}">
+                        {% if msg.is_read %}مقروءة{% else %}جديدة{% endif %}
+                    </button>
+                </td>
+                <td>{{ msg.created_at|date:"d/m/Y H:i" }}</td>
+                <td><a href="{% url 'dashboard:message_detail' msg.pk %}" class="btn btn-sm btn-outline-primary">عرض</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted">لا توجد رسائل</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'dashboard/partials/pagination.html' with page_obj=page_obj %}
+</div>
+{% endblock %}
